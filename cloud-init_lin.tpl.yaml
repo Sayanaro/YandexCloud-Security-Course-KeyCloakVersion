@@ -1,0 +1,14 @@
+#cloud-config
+#ssh_pwauth: no
+users:
+  - name: yc-user
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "${ssh_key}"
+runcmd:
+ # - sudo apt-get update
+ # - sudo apt-get install perl -y
+  - cp /root/default_passwords.txt /tmp
+  - chmod 7777 /tmp/default_passwords.txt /tmp
