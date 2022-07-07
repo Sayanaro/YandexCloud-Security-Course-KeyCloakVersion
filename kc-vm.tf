@@ -67,6 +67,7 @@ resource "yandex_compute_instance" "keycloak" {
     destination = "realm.json"
     content = templatefile("init/realm.json", {
       domain_fqdn = "${var.domain_fqdn}"
+      kc_realm = "${var.kc_realm}"
     })
   }
   provisioner "file" {

@@ -23,7 +23,7 @@ chmod 755 /opt/ca
 chmod 700 private
 
 # Downloading OpenSSL config fo root ca
-wget https://storage.yandexcloud.net/securitylab/openssl.cnf
+wget hhttps://raw.githubusercontent.com/Sayanaro/YandexCloud-Security-Course-KeyCloackVersion/master/openssl.cnf
 
 # Creating self-signed Root CA certificate with 10 years lifetime
 openssl req -new -x509 -newkey rsa:4096 -days 3650 -config openssl.cnf -sha256 -extensions v3_ca -nodes -x509 \
@@ -49,7 +49,7 @@ chmod 777 /opt/ca/intermediate
 touch index.txt
 echo 1000 > serial
 echo 1000 > /opt/ca/intermediate/crlnumber
-wget https://storage.yandexcloud.net/securitylab/intermediate/openssl.cnf
+wget https://raw.githubusercontent.com/Sayanaro/YandexCloud-Security-Course-KeyCloackVersion/master/intermediate/openssl.cnf
 
 chmod 755 /opt/ca/intermediate
 chmod 700 private

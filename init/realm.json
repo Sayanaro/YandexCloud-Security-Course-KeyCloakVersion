@@ -1,5 +1,5 @@
 {
-  "realm": "quickstart",
+  "realm": "${kc_realm}",
   "enabled": true,
   "accessTokenLifespan": 60,
   "accessCodeLifespan": 60,
