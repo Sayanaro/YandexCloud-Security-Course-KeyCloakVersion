@@ -1,6 +1,6 @@
-# YandexCloud-Security-Course
+# YandexCloud-Practicum-Security-Course
 
-Сценарий для развертывания сервера KeyCloak (DNS + PKI + KeyCloack) и рабочей станции.
+Сценарий для развертывания контроллера домена IdP KeyCloak и рабочей станции.
 
 Сценарий написан для курса "Настройка безопасной среды в Yandex.Cloud".
 
@@ -14,7 +14,7 @@
 Для загрузки рецепта Terraform установите git [по инструкции](https://git-scm.com/book/ru/v2/Введение-Установка-Git).
  
 ## Установка Terraform
-Установите инструмент `Terraform` на свой компьютер (если он уже не установлен) по инструкции.
+Установите инструмент `Terraform` на свой компьютер (если он уже не установлен) по [(инструкции)](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform).
 
   ### Установка Terraform для Windows:
   Распакуйте архив и скопируйте файл terraform.exe в каталог `C:\Windows\System32`
@@ -74,14 +74,14 @@ yc config set token $env:YC_TOKEN
  
 ### Загрузка сценария Terraform
 ```bash
-git clone https://github.com/Sayanaro/YandexCloud-Security-Course-KeyCloakVersion.git
-cd YandexCloud-Prcticum-Security-Course
+git clone https://github.com/Sayanaro/YandexCloud-Security-Course-KeyCloack-AltVersion.git
+cd YandexCloud-Security-Course-KeyCloack-AltVersion
 ```
  
 ## Развёртывание рабочей среды с помощью Terraform
-Сценарий разворачивает Identity Provide KeyCloack, рабочую станцию ws и инстанс интернет-магазина OpenCart.
+Сценарий разворачивает контроллер домена Active Directory + ADFS, рабочую станцию ws и инстанс интернет-магазина OpenCart.
 
-Имена виртуальных машин задаются переменными в файле `terraform.tfvars`. Остальные переменные заданы в файле `variables.tf` в параметрах по умолчанию.
+Имена виртуальных машин, домена, и пользователей задаются переменными в файле `terraform.tfvars`. Остальные переменные заданы в файле `variables.tf` в параметрах по умолчанию.
 
 Для начала зададим переменные окружения:
  
@@ -118,3 +118,43 @@ terraform apply
 Спустя 25 минут окружение будет настроено и готово к работе.
 
 Дальнейшая работа будет проводиться на ВМ ws для демонстрации создания федерации.
+
+### Подключение к ВМ из Windows:
+Перед созданием ВМ терраформ генерирует криптопару для доступа к гостевой ОС по протоколу SSH. Закрытый ключ сохраняется в файле `pt_key.pem`. Чтобы подключиться с использованием этого файла из ОС Windows необходимо изменить права доступа к нему.
+После выполнения сценария Terraform выполните в PowerShell:
+
+```PowerShell
+$Key = "pt_key.pem"
+Icacls $Key /c /t /Inheritance:d
+Icacls $Key /c /t /Remove:g Administrator "Authenticated Users" BUILTIN\Administrators BUILTIN Everyone System Users
+Icacls $Key /c /t /Grant ${env:UserName}:F
+TakeOwn /F $Key
+Icacls $Key /c /t /Grant:r ${env:UserName}:F
+Icacls $Key
+```
+
+После этого можно подключаться к ВМ Linux по ssh:
+
+```PowerShell
+ssh <username>@<pulic_ip> -i pt_key.pem
+```
+
+## Подключение к ВМ
+```bash
+# keycloak:
+ssh ubuntu@<keycloak_vm_public_ip> -i pt_key.pem
+
+# ws:
+ssh sles@<ws_vm_public_ip> -i pt_key.pem
+```
+
+Для полдключения к рабочему столу через VNC-клиент: 
+* подключитесь к ВМ ws по ssh:
+```bash
+ssh sles@<ws_vm_public_ip> -i pt_key.pem
+```
+* выполните:
+```bash
+vncserver -geometry 1200x800 -depth 32 -name remote-desktop :1
+```
+* Подключитесь к рабочему столу по порту 5901
