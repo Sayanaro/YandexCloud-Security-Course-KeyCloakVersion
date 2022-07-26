@@ -74,8 +74,8 @@ yc config set token $env:YC_TOKEN
  
 ### Загрузка сценария Terraform
 ```bash
-git clone https://github.com/Sayanaro/YandexCloud-Security-Course-KeyCloack-AltVersion.git
-cd YandexCloud-Security-Course-KeyCloack-AltVersion
+git clone https://github.com/Sayanaro/YandexCloud-Security-Course-KeyCloackVersion.git
+cd YandexCloud-Security-Course-KeyCloackVersion
 ```
  
 ## Развёртывание рабочей среды с помощью Terraform
