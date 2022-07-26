@@ -33,61 +33,21 @@ resource "yandex_compute_instance" "keycloak" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${chomp(tls_private_key.ssh.public_key_openssh)}"
-  }
-
-  provisioner "file" {
-    destination="kc-data.sh"
-    content = <<EOF
-    DomainFQDN=${var.domain_fqdn}
-    KC_REALM=${var.kc_realm}
-    KC_VER=${var.kc_ver}
-    KC_PORT=${var.kc_port}
-    KC_ADM_USER=${var.kc_adm_user}
-    KC_ADM_PASS="${var.kc_adm_pass}"
-    PG_DB_HOST=${yandex_mdb_postgresql_cluster.pg_cluster.host.0.fqdn}
-    PG_DB_NAME=${var.pg_db_name}
-    PG_DB_USER=${var.pg_db_user}
-    PG_DB_PASS="${var.pg_db_pass}"
-    EOF
-  }
-
-  provisioner "file" {
-    source = "init/dns_install.sh"
-    destination = "dns_install.sh"
-  }
-
-  provisioner "file" {
-    source = "init/ca_config.sh"
-    destination = "ca_config.sh"
-  }
-
-  # Realm configuration
-  provisioner "file" {
-    destination = "realm.json"
-    content = templatefile("init/realm.json", {
-      domain_fqdn = "${var.domain_fqdn}"
-      kc_realm = "${var.kc_realm}"
-    })
-  }
-  provisioner "file" {
-    source = "init/kc_install.sh"
-    destination = "kc_install.sh"
-  }
-
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    private_key = tls_private_key.ssh.private_key_pem
-    host = yandex_compute_instance.keycloak.network_interface.0.nat_ip_address
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo bash dns_install.sh",
-      "sudo bash ca_config.sh",
-      "sudo bash kc_install.sh"
-    ]
+    user-data = templatefile("${path.module}/init/kc-install.yml",
+    {
+      ssh_key = "${chomp(tls_private_key.ssh.public_key_openssh)}"
+      DomainFQDN = var.domain_fqdn
+      KC_REALM = var.kc_realm
+      KC_VER = var.kc_ver
+      KC_PORT = var.kc_port
+      KC_ADM_USER = var.kc_adm_user
+      KC_ADM_PASS = var.kc_adm_pass
+      PG_DB_HOST = yandex_mdb_postgresql_cluster.pg_cluster.host.0.fqdn
+      PG_DB_NAME = var.pg_db_name
+      PG_DB_USER = var.pg_db_user
+      PG_DB_PASS = var.pg_db_pass
+    }
+    )
   }
 
   timeouts {
@@ -128,34 +88,16 @@ resource "yandex_compute_instance" "ws" {
   }
 
   metadata = {
-    ssh-keys = "sles:${chomp(tls_private_key.ssh.public_key_openssh)}"
-  }
-
-  provisioner "file" {
-    destination="ws-data.sh"
-    content = <<EOF
-    DomainFQDN=${var.domain_fqdn}
-    KC_ADM_PASS="${var.kc_adm_pass}"
-    DNS_IP=${yandex_compute_instance.keycloak.network_interface.0.ip_address}
-    EOF
-  }
-
-  provisioner "file" {
-    source = "init/ws_config.sh"
-    destination = "ws_config.sh"
-  }
-
-  connection {
-    type = "ssh"
-    user = "sles"
-    private_key = tls_private_key.ssh.private_key_pem
-    host = yandex_compute_instance.ws.network_interface.0.nat_ip_address
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo bash ws_config.sh"
-    ]
+    user-data = templatefile("${path.module}/init/ws-install.yml",
+    {
+      ssh_key = "${chomp(tls_private_key.ssh.public_key_openssh)}"
+      DomainFQDN=var.domain_fqdn
+      KC_ADM_PASS=var.kc_adm_pass
+      DNS_IP=yandex_compute_instance.keycloak.network_interface.0.ip_address
+      KC_NAME=var.keycloak_name
+      KC_PORT=var.kc_port
+    }
+    )
   }
 
   timeouts {
