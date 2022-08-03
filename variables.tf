@@ -13,9 +13,9 @@ variable "net_cidr" {
   }))
 
   default = [
-    { name = "keycloak-subnet-a", zone = "ru-central1-a", prefix = "10.90.1.0/24" },
-    { name = "keycloak-subnet-b", zone = "ru-central1-b", prefix = "10.91.1.0/24" },
-    { name = "keycloak-subnet-c", zone = "ru-central1-c", prefix = "10.92.1.0/24" },
+    { name = "keycloak-subnet-a", zone = "ru-central1-a", prefix = "10.60.1.0/24" },
+    { name = "keycloak-subnet-b", zone = "ru-central1-b", prefix = "10.61.1.0/24" },
+    { name = "keycloak-subnet-c", zone = "ru-central1-c", prefix = "10.62.1.0/24" },
   ]
 
   validation {
