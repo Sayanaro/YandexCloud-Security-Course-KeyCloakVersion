@@ -26,8 +26,11 @@ write_files:
       systemctl start sddm
 
       # Setting up password for user sles
-      echo sles:\"${KC_ADM_PASS}\" > pass.txt
-      chpasswd <pass.txt
+      cat > pass.txt <<EOF
+      sles:\"${KC_ADM_PASS}\"
+      EOF
+
+      chpasswd < pass.txt
       #
 
       # Installing Google Chrome
