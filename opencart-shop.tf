@@ -29,7 +29,7 @@ resource "yandex_compute_instance" "opencart-vm" {
   }
 
   metadata = {
-  user-data = "${data.template_file.cloud_init_lin.rendered}"
+  user-data = templatefile("init/opencart-install.yaml", { ssh_key = "${chomp(tls_private_key.ssh.public_key_openssh)}"} )
   serial-port-enable = 1
   
 }
@@ -45,12 +45,6 @@ resource "yandex_compute_instance" "opencart-vm" {
   }
 } */
 
-data "template_file" "cloud_init_lin" {
-  template = file("init/opencart-install.yaml")
-   vars =  {
-        ssh_key = "${chomp(tls_private_key.ssh.public_key_openssh)}"
-    }
-}
 #Create ssh key
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
